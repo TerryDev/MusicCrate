@@ -1,0 +1,35 @@
+﻿@page "/AddArtist"
+@using Microsoft.EntityFrameworkCore
+@inject IDbContextFactory<ApplicationDbContext> context
+@inject NavigationManager navMan;
+
+<EditForm Model="artist" OnValidSubmit="OnValidSubmit">
+        <DataAnnotationsValidator />
+    
+        <p>
+            <label>Name</label>
+            <InputText @bind-Value="artist.Name" />
+        </p>
+
+        <p>
+            <label>Description</label>
+            <InputTextArea @bind-Value="artist.Description"></InputTextArea>
+        </p>
+    
+    
+    <button type="submit">Submit</button>
+</EditForm>
+@code {
+    private Artist artist = new Artist();
+
+    private async Task OnValidSubmit()
+    {
+        using (var ctx = await context.CreateDbContextAsync())
+        {
+            ctx.Add(artist);
+            await ctx.SaveChangesAsync();
+            navMan.NavigateTo("/");
+        }
+    }
+
+}

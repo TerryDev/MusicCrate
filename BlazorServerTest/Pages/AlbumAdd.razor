@@ -1,0 +1,90 @@
+﻿@page "/AddAlbum"
+<h3>Album Add</h3>
+@using Microsoft.EntityFrameworkCore
+@inject IDbContextFactory<ApplicationDbContext> context
+@inject NavigationManager navMan;
+
+<EditForm Model="@album" OnValidSubmit="HandleValidSubmit">
+    <p>
+        <label>
+            Title
+            <InputText @bind-Value="album.Title" />
+        </label>
+    </p>
+    <p>
+        <label>
+            Description
+            <InputTextArea @bind-Value="album.Description"/>
+        </label>
+    </p>
+    <p>
+        <label>
+            Release Date
+            <InputDate @bind-Value="album.ReleaseDate" />
+        </label>
+    </p>
+    <p>
+        <label>Artist(s)</label>
+        <select @onchange="OnSelectionChanged" name="artist" id="artist">
+            <option value="0">Select an Artist...</option
+
+                @foreach (var artist in artists)
+                {
+                    <option value="@artist.Id">@artist.Name</option>
+                }                
+
+        </select>
+    </p>
+    <button type="submit">Submit</button>
+
+</EditForm>
+
+@code {
+    private Album album = new() { ReleaseDate = DateTime.Now, CoverUrl = "" };
+    private List<Artist> artistchoice = new List<Artist>();
+    private List<Artist> artists = new List<Artist>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        using (var ctx = await context.CreateDbContextAsync())
+        {
+            var result = await ctx.Artists.ToListAsync();
+            artists = result;
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        using (var ctx = await context.CreateDbContextAsync())
+        {
+            foreach (var choice in artistchoice)
+            {
+                choice.Id = 0;
+            }
+            album.Artists = artistchoice;
+            ctx.Albums.Add(album);
+
+            await ctx.SaveChangesAsync();
+
+            navMan.NavigateTo($"/album/{album.Id}");
+        }
+    }
+
+    private async Task OnSelectionChanged(ChangeEventArgs e)
+    {
+        int value = 0;
+        try
+        {
+            value = int.Parse(e.Value.ToString());
+        } catch (Exception)
+        {
+            Console.WriteLine("Erm...");
+        }
+        if (value != 0)
+        {
+            artistchoice.Add(artists.Where(x => x.Id == value).FirstOrDefault());
+        }
+
+    }
+
+}

@@ -1,0 +1,30 @@
+﻿@page "/albums"
+@using Microsoft.EntityFrameworkCore
+@inject IDbContextFactory<ApplicationDbContext> context
+@attribute [Authorize]
+
+
+
+@if (albums != null)
+{
+    @foreach (var album in albums)
+    {
+        <h3><a href="/album/@album.Id">@album.Title</a></h3>
+        <p>@album.Description</p>
+        <b>Released: <span>@album.ReleaseDate.Date</span></b>
+        <a href="/album/@album.Id/review">Review</a>
+    }   
+}
+
+
+@code {
+    private List<Album> albums;
+
+    protected override async Task OnInitializedAsync()
+    {
+        using (var ctx = context.CreateDbContext())
+        {
+            albums = await ctx.Albums.ToListAsync();
+        }
+    }
+}

@@ -1,0 +1,59 @@
+﻿@page "/album/{AlbumId:int}/review" 
+@using Microsoft.EntityFrameworkCore
+@inject IDbContextFactory<ApplicationDbContext> context;
+@inject NavigationManager navMan;
+@attribute [Authorize]
+
+
+<EditForm Model="review" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    
+        <p>
+            <label>Review</label>
+            <InputTextArea @bind-Value="review.Body" />
+        </p>
+    
+
+    
+        <p>
+            <label>Stars</label>
+            <InputNumber @bind-Value="review.Stars" />
+        </p>
+    
+    
+    <button type="submit">Submit</button>
+</EditForm>
+
+
+@code {
+    [Parameter] public int AlbumId { get; set; }
+    [CascadingParameter] private Task<AuthenticationState> authenticationState { get; set; }
+
+    private Review review;
+
+    protected override async Task OnInitializedAsync()
+    {
+        review = new Review
+        {
+            PostTime = DateTime.Now,
+            AlbumId = AlbumId
+        };
+    }
+
+
+    private async Task OnValidSubmit()
+    {
+        using (var ctx = context.CreateDbContext())
+        {
+            var userAuthState = await authenticationState;
+            var userName = userAuthState.User.Identity.Name;
+            review.User = await ctx.Users.Where(x => x.UserName == userName).FirstOrDefaultAsync();
+
+            ctx.Add(review);
+            await ctx.SaveChangesAsync();
+
+        }
+        navMan.NavigateTo($"/album/{AlbumId}");
+    }
+
+}
