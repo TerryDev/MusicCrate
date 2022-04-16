@@ -32,17 +32,39 @@
                 {
                     <option value="@artist.Id">@artist.Name</option>
                 }                
-
         </select>
+
+
     </p>
+    <div class="form-group">
+        <div class="form-group">
+            <button type="button" class="btn btn-primary"
+            @onclick="@(() => album.Tracks.Add(new Track()))">Add Track</button>
+        </div>
+
+                @for (var i = 0; i < album.Tracks.Count; i++)
+        {
+            var index = i;
+            var track = album.Tracks[i];
+
+            <h5>Track @(i+1)</h5>
+
+            <div class="form-group">
+                <label>Title:</label>
+                <InputText class="form-control" @bind-Value="track.Title" />
+            </div>
+        }
+    </div>
     <button type="submit">Submit</button>
 
 </EditForm>
 
 @code {
-    private Album album = new() { ReleaseDate = DateTime.Now, CoverUrl = "" };
+    private Album album = new() { ReleaseDate = DateTime.Now, CoverUrl = "", Tracks = new List<Track>() };
     private List<Artist> artistchoice = new List<Artist>();
     private List<Artist> artists = new List<Artist>();
+
+    
 
     protected override async Task OnInitializedAsync()
     {
@@ -59,8 +81,9 @@
         {
             foreach (var choice in artistchoice)
             {
-                choice.Id = 0;
+                ctx.Artists.Attach(choice);
             }
+            
             album.Artists = artistchoice;
             ctx.Albums.Add(album);
 

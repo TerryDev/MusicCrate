@@ -1,4 +1,8 @@
 ﻿@page "/"
+@using Microsoft.EntityFrameworkCore
+@inject IDbContextFactory<ApplicationDbContext> context
+
+
 
 <PageTitle>Index</PageTitle>
 
@@ -6,4 +10,28 @@
 
 Welcome to your new app.
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+@if (albums == null)
+{
+    <p>Loading...</p>
+} else
+{
+    <ul>
+        @foreach (var album in albums)
+        {
+            <li><a href="/album/@album.Id">@album.Title</a></li>
+        }
+    </ul>
+}
+
+@code {
+    private List<Album> albums;
+
+    protected override async Task OnInitializedAsync()
+    {
+        using (var ctx = await context.CreateDbContextAsync())
+        {
+            var result = await ctx.Albums.OrderByDescending(x => x.Reviews.Count).ToListAsync();
+            albums = result;
+        }
+    }
+}

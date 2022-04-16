@@ -24,7 +24,10 @@
     {
         using (var ctx = context.CreateDbContext())
         {
-            albums = await ctx.Albums.ToListAsync();
+            var result = await ctx.Albums.ToListAsync();
+            albums = result;
+            albums.Reverse();
+
         }
     }
 }

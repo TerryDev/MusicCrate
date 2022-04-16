@@ -1,0 +1,35 @@
+﻿@page "/artist/{ArtistId:int}"
+@using Microsoft.EntityFrameworkCore
+@inject IDbContextFactory<ApplicationDbContext> context;
+
+@if (artist == null) {
+    <p>Loading...</p>
+} else
+{
+    <h3>@artist.Name</h3>
+    <p>@artist.Description</p>
+    
+    <h3>Albums</h3>
+    <ul>
+        @foreach (var album in artist.Albums)
+        {
+            <li><a href="/album/@album.Id">@album.Title</a></li>
+        }
+    </ul>
+}
+
+
+@code {
+    [Parameter] public int ArtistId { get; set; }
+
+    private Artist artist;
+
+    protected async override Task OnInitializedAsync()
+    {
+        using (var ctx = await context.CreateDbContextAsync()) {
+            var result = await ctx.Artists.Where(x => x.Id == ArtistId).Include(x => x.Albums).FirstOrDefaultAsync();
+            artist = result;
+        }
+    }
+
+}

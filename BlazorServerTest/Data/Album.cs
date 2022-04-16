@@ -9,6 +9,6 @@
         public DateTime ReleaseDate { get; set; }
         public List<Review> Reviews { get; set; }
         public List<Artist> Artists { get; set; }
-
+        public List<Track> Tracks { get; set; }
     }
 }

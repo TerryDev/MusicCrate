@@ -1,0 +1,32 @@
+﻿@page "/artists"
+@using Microsoft.EntityFrameworkCore
+@inject IDbContextFactory<ApplicationDbContext> context;
+
+@if (artists == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <h3>Artists</h3>
+    <ul>
+        @foreach (var artist in artists)
+        {
+            <li><a href="/artist/@artist.Id">@artist.Name</a></li>
+        }
+    </ul>
+}
+
+
+@code {
+    private List<Artist> artists;
+
+    protected override async Task OnInitializedAsync()
+    {
+        using (var ctx = await context.CreateDbContextAsync())
+        {
+            var result = await ctx.Artists.ToListAsync();
+            artists = result;
+        }
+    }
+}

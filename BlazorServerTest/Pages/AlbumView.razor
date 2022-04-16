@@ -12,25 +12,35 @@ else
         <div class="album-art">
             <img src="https://upload.wikimedia.org/wikipedia/en/8/86/Geogaddi.jpg" />
         </div>
-        
+
         <div class="album-info">
             <h3>@album.Title</h3>
             <p>@album.Description</p>
-            <p><b>Artists:</b> 
+            <p>
+                <b>Artists:</b>
                 @foreach (var artist in album.Artists)
                 {
                     <span>@artist.Name</span>
-                }    
+                }
             </p>
             <p><b>Release Date:</b> @album.ReleaseDate</p>
         </div>
 
-
-
     </div>
 
-            <h3>Reviews</h3>
-        <a href="/album/@AlbumId/review">Create Review</a>
+    <div class="album-tracks">
+        <h3>Tracks</h3>
+        @for (int i = 0; i < album.Tracks.Count; i++)
+        {
+            var index = i;
+            var track = album.Tracks[i];
+
+            <p>@(i + 1). @track.Title</p>
+        }
+    </div>
+
+    <h3>Reviews</h3>
+    <a href="/album/@AlbumId/review">Create Review</a>
     @foreach (var review in album.Reviews)
     {
         <p><b>Reviewed by:</b> @review.User.UserName</p>
@@ -52,7 +62,7 @@ else
     {
         using (var ctx = context.CreateDbContext())
         {
-            var result = await ctx.Albums.Where(x => x.Id == AlbumId).Include(x => x.Artists).Include(x => x.Reviews).ThenInclude(x => x.User).FirstOrDefaultAsync();
+            var result = await ctx.Albums.Where(x => x.Id == AlbumId).Include(x => x.Tracks).Include(x => x.Artists).Include(x => x.Reviews).ThenInclude(x => x.User).FirstOrDefaultAsync();
             if (result != null)
             {
                 result.Reviews.Reverse();
