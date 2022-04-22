@@ -1,0 +1,32 @@
+﻿@page "/collections"
+@using Microsoft.EntityFrameworkCore
+@inject IDbContextFactory<ApplicationDbContext> context
+
+<h3>Collections</h3>
+<a href="/CreateCollection">Create a Collection</a>
+
+@if (UserCollections == null)
+{
+    <p>Loading...</p>
+} else
+{
+    @foreach (var collection in UserCollections)
+    {
+        <h4>@collection.Name</h4>
+        <small>Created by: @collection.Creator.UserName</small>
+        <p><a href="/collection/@collection.Id">View</a></p>
+    }
+}
+
+@code {
+    private List<UserCollection> UserCollections { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using (var ctx = await context.CreateDbContextAsync())
+        {
+            var result = await ctx.UserCollections.Include(x => x.Creator).ToListAsync();
+            UserCollections = result;
+        }
+    }
+}

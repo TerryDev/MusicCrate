@@ -1,0 +1,50 @@
+﻿@page "/AddCollection"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Identity;
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject UserManager<ApplicationUser> userManager 
+@inject IDbContextFactory<ApplicationDbContext> context
+@inject NavigationManager navMan;
+
+@attribute [Authorize]
+
+<EditForm Model="collection" OnValidSubmit="OnValidSubmit">
+        <DataAnnotationsValidator />
+    
+        <p>
+            <label>Title</label>
+            <InputText @bind-Value="collection.Name" />
+        </p>
+
+        <p>
+            <label>Description</label>
+            <InputTextArea @bind-Value="collection.Description"></InputTextArea>
+        </p>
+    
+    
+    <button type="submit">Submit</button>
+</EditForm>
+@code {
+    private UserCollection collection = new UserCollection();
+
+    private async Task OnValidSubmit()
+    {
+        using (var ctx = await context.CreateDbContextAsync())
+        {
+            var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+            var authUser = authState.User;
+            var user = await userManager.GetUserAsync(authUser);
+
+            if (user != null)
+            {
+                ctx.Users.Attach(user);
+                collection.Creator = user;
+                ctx.Add(collection);
+                await ctx.SaveChangesAsync();
+                navMan.NavigateTo("/collections");
+                
+            }
+        }
+    }
+
+}

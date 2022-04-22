@@ -2,19 +2,26 @@
 
 <PageTitle>BlazorServerTest</PageTitle>
 
-<div class="page">
-    <div class="sidebar">
+<!--<div class="page">-->
+    <header>
         <NavMenu />
-    </div>
+    </header>
+    
+
 
     <main>
+        
         <div class="top-row px-4 auth">
             <LoginDisplay />
             <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
         </div>
 
+        @Body
+        <!--        
         <article class="content px-4">
-            @Body
+            
         </article>
+        -->
+
     </main>
-</div>
+

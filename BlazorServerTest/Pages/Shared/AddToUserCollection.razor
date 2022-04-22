@@ -1,0 +1,93 @@
+﻿@page "/test"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Identity;
+@inject IDbContextFactory<ApplicationDbContext> context
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject UserManager<ApplicationUser> userManager 
+
+
+<button class="btn btn-primary" type="button" @onclick="(() => AddToCollectionMenu.Open())">Add to Collection</button>
+
+<Modal @ref="AddToCollectionMenu">
+    <Title>Add to Collection</Title>
+    <Body>
+        <h3>Collections</h3>
+        @if (DbUserCollections != null)
+        {
+            @for (int i = 0; i < DbUserCollections.Count; i++)
+            {
+                int index = i;
+                <label>@DbUserCollections[index].Name</label>
+                <input type="checkbox" @bind="DbUserCollections[index].IsInCurrentCollection" />
+                
+            }
+        }
+    </Body>
+    <Footer>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="() => AddToCollectionMenu.Close()">Close</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" @onclick="() => SaveChanges()">Save Changes</button>
+    </Footer>
+</Modal>
+
+
+@code {
+    [Parameter] public int AlbumId { get; set; }
+
+    private Modal AddToCollectionMenu { get; set; }
+    private List<UserCollection> DbUserCollections;
+
+    protected async override Task OnInitializedAsync()
+    {
+        using (var ctx = await context.CreateDbContextAsync())
+        {
+            var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+            var userState = authState.User;
+
+            var user = await userManager.GetUserAsync(userState);
+            var result = await ctx.UserCollections.Where(x => x.Creator == user).Include(x => x.Members).ToListAsync();
+            DbUserCollections = result;
+
+            foreach (var collection in DbUserCollections)
+            {
+                if (collection.Members.Any(x => x.AlbumId == AlbumId))
+                {
+                    collection.IsInCurrentCollection = true;
+                }
+            }
+
+
+        }
+    }
+
+    private async Task SaveChanges()
+    {
+        using (var ctx = await context.CreateDbContextAsync())
+        {
+            foreach (var collection in DbUserCollections)
+            {
+                var dbResult = await ctx.UserCollectionMembers.Where(x => x.UserCollectionId == collection.Id).FirstOrDefaultAsync();
+                if (dbResult != null)
+                {
+                    if (collection.IsInCurrentCollection && dbResult.AlbumId != AlbumId)
+                    {
+                        ctx.Add(new UserCollectionMembers { AlbumId = AlbumId, UserCollectionId = collection.Id });
+                    }
+                    else if (!collection.IsInCurrentCollection && dbResult.AlbumId == AlbumId)
+                    {
+                        ctx.Remove(dbResult);
+                    }
+                }
+                else
+                {
+                    if (collection.IsInCurrentCollection)
+                    {
+                        ctx.Add(new UserCollectionMembers { AlbumId = AlbumId, UserCollectionId = collection.Id });
+                    }
+                }
+                await ctx.SaveChangesAsync();
+            }
+        }
+    }
+
+
+}

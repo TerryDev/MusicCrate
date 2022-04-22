@@ -1,0 +1,39 @@
+﻿@page "/collection/{CollectionId:int}"
+@using Microsoft.EntityFrameworkCore
+@inject IDbContextFactory<ApplicationDbContext> context
+
+@if (collection == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <h3>@collection.Name</h3>
+    <p>@collection.Description</p>
+
+    @foreach (var album in collection.Members)
+    {
+        <h4>@album.Album.Title</h4>
+    }
+}
+
+
+@code {
+    [Parameter] public int CollectionId { get; set; }
+
+
+    private UserCollection collection;
+
+    protected async override Task OnInitializedAsync()
+    {
+        using (var ctx = context.CreateDbContext())
+        {
+            var result = await ctx.UserCollections.Where(x => x.Id == CollectionId).Include(x => x.Creator).Include(x => x.Members).ThenInclude(x => x.Album).FirstOrDefaultAsync();
+            if (result != null)
+            {
+                collection = result;
+            }
+
+        }
+    }
+}

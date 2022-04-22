@@ -13,16 +13,15 @@ namespace BlazorServerTest.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
-
+            
             base.OnModelCreating(modelBuilder);
-
         }
 
         public DbSet<Album> Albums { get; set; }
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Artist> Artists { get; set; }
         public DbSet<Track> Tracks { get; set; }
-
+        public DbSet<UserCollection> UserCollections { get; set; }
+        public DbSet<UserCollectionMembers> UserCollectionMembers { get; set; }
     }
 }

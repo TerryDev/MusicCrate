@@ -5,6 +5,7 @@ namespace BlazorServerTest.Data
     public class ApplicationUser: IdentityUser
     {
         public override string UserName { get => base.UserName; set => base.UserName = value; }
-
+        public List<UserCollection> UserCollections { get; set; }
+        
     }
 }

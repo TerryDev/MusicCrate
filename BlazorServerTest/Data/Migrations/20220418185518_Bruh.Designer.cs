@@ -4,6 +4,7 @@ using BlazorServerTest.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BlazorServerTest.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220418185518_Bruh")]
+    partial class Bruh
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -265,19 +267,19 @@ namespace BlazorServerTest.Data.Migrations
                     b.Property<int?>("AlbumId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("TrackId")
+                    b.Property<int>("CollectionId")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserCollectionId")
+                    b.Property<int?>("TrackId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AlbumId");
 
-                    b.HasIndex("TrackId");
+                    b.HasIndex("CollectionId");
 
-                    b.HasIndex("UserCollectionId");
+                    b.HasIndex("TrackId");
 
                     b.ToTable("UserCollectionMembers");
                 });
@@ -490,21 +492,21 @@ namespace BlazorServerTest.Data.Migrations
                         .WithMany()
                         .HasForeignKey("AlbumId");
 
+                    b.HasOne("BlazorServerTest.Data.UserCollection", "Collection")
+                        .WithMany("Members")
+                        .HasForeignKey("CollectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("BlazorServerTest.Data.Track", "Track")
                         .WithMany()
                         .HasForeignKey("TrackId");
 
-                    b.HasOne("BlazorServerTest.Data.UserCollection", "UserCollection")
-                        .WithMany("Members")
-                        .HasForeignKey("UserCollectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Album");
 
-                    b.Navigation("Track");
+                    b.Navigation("Collection");
 
-                    b.Navigation("UserCollection");
+                    b.Navigation("Track");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

@@ -1,4 +1,6 @@
-﻿namespace BlazorServerTest.Data
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace BlazorServerTest.Data
 {
     public enum UserCollectionType
     {
@@ -12,6 +14,8 @@
         public string Description { get; set; }
         public ApplicationUser Creator { get; set; }
         public UserCollectionType Type { get; set; }
-
+        public List<UserCollectionMembers> Members { get; set; }
+        [NotMapped]
+        public bool IsInCurrentCollection { get; set; }
     }
 }

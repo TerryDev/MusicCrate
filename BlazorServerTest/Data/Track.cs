@@ -7,6 +7,5 @@
         public Album Album { get; set; }
         public List<Artist> Artists { get; set; }
         public int RunningTime { get; set; }
-
     }
 }
